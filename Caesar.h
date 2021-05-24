@@ -32,6 +32,14 @@ public:
      * @return QString Множество вариантов дешифровки
      */
     QString MechanicalDecodeText(QString text);
+
+    /**
+     * @brief Автоматическое дешифрование текста
+     * 
+     * @param text Текст для дешифровки
+     * @return QString Дешифрованный текст
+     */
+    QString AlgoDecodeText(QString text);
     void DecodeTextSlot(); // Функция для взаимодействия с интерфейсом
 
 
