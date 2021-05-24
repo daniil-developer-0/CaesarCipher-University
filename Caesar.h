@@ -25,6 +25,12 @@ public:
     QString EncodeText(QString text, int shift);
     void EncodeTextSlot(); // Функция для взаимодействия с интерфейсом
 
+    /**
+     * @brief Дешифрование текста
+     * 
+     * @param text Текст для дешифровки
+     * @return QString Множество вариантов дешифровки
+     */
     QString MechanicalDecodeText(QString text);
     void DecodeTextSlot(); // Функция для взаимодействия с интерфейсом
 
