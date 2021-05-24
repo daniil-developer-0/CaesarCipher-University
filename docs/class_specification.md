@@ -152,6 +152,7 @@ void SetUpLanguageEnvironment();
  */
 QString EncodeText(QString text, int shift);
 ```
+
 Данный метод обрабатывает текст переданный в параметре `Qstring text`. Метод находит индекс каждой буквы `QString text` в массиве `- QString alphabet`, а затем прибавляет значение `int shift`, переданной в параметре метода, после после выполнения операции сложения получается индекс нового **зашифрованного символа**. Таким образом метод шифрует каждый символ `QString text`, который есть в массиве `- QString alphabet`.
 
 #### Слот `+ EncodeTextSlot()`
