@@ -3,12 +3,15 @@
 #include <map>
 #include <QString>
 
+#define DEBUG
+
 Caesar::Caesar(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::Caesar)
 {
     ui->setupUi(this);
     // Соединяем кнопку "Зашифровать"
     connect(ui->EncodeButton, &QPushButton::released, this, &Caesar::EncodeTextSlot);
+    // Соединяем кнопку "Дешифровать"
     connect(ui->DecodeButton, &QPushButton::released, this, &Caesar::DecodeTextSlot);
 }
 
@@ -147,6 +150,57 @@ QString Caesar::MechanicalDecodeText(QString text)
     return result;
 }
 
+QString Caesar::AlgoDecodeText(QString text)
+{
+    QString result = "";
+    // Подсчёт коэффициентов символов
+    float *localAlphabetFrequency = new float[Caesar::alphabetAmountOfLetters]; // Локальные частоты встречаемости символов
+    // std::map<QChar, float> CharacterFrequencies;
+    for (int i = 0; i < Caesar::alphabetAmountOfLetters; i++)
+    {
+        localAlphabetFrequency[i] = (float)text.count(Caesar::alphabet[i]) / text.length(); // Частота встречи определенного символа в исходном тексте
+        localAlphabetFrequency[i] = (float)((int)(localAlphabetFrequency[i] * 10000)) / 100; // Отрезаем мантиссу. Оставляем 10^2 (2 числа после запятой).
+
+        #ifdef DEBUG
+        result.append("===\n");
+        result.append("Letter is: " + QString(Caesar::alphabet.at(i)) + "\n");
+        result.append("Letter count: " + QString::number(text.count(Caesar::alphabet.at(i))) + "\n");
+        result.append("Letter Frequency divided on text len: " + QString::number(localAlphabetFrequency[i]) + "\n");
+        result.append("===\n\n");
+        #endif
+        
+    }
+    //: Нахождение разницы между символами
+    //* Обнуление всех элементов массива
+    float *sums = new float[Caesar::alphabetAmountOfLetters];
+    
+    for (int i = 0; i < Caesar::alphabetAmountOfLetters; i++)
+    {
+        sums[i] = 0;
+        for (int j = 0; j < Caesar::alphabetAmountOfLetters; j++)
+        {
+            sums[i] += (i + j >= Caesar::alphabetAmountOfLetters) ?
+            Caesar::alphabetFrequency[0 + j] - localAlphabetFrequency[0 + j] :
+            Caesar::alphabetFrequency[i + j] - localAlphabetFrequency[i + j];
+        }
+    }
+
+    //: Нахождение минимальной разницы
+    int min = sums[0];
+    int min_index = 0;
+    for (int i = 0; i < Caesar::alphabetAmountOfLetters; i++)
+    {
+        if (sums[i] < min) {
+            min = sums[i];
+            min_index = i;
+        }
+    }
+        
+    //: Дешифровка
+    result = Caesar::EncodeText(text, min_index - 1);
+    return result;
+}
+
 // Slots
 void Caesar::EncodeTextSlot()
 {
@@ -166,14 +220,7 @@ void Caesar::DecodeTextSlot()
     Caesar::SetUpLanguageEnvironment();
     QString input = Caesar::GetText();
     QString output = "";
-    if (ui->AlgoDecodeCheckbutton->isChecked())
-    {
-    }
-    else
-    {
-        output = Caesar::MechanicalDecodeText(input); // Механическое декодирование текста
-    }
-
+    output = ui->AlgoDecodeCheckbutton->isChecked() ? Caesar::AlgoDecodeText(input) : Caesar::MechanicalDecodeText(input); // Декодирование текста
     Caesar::SetText(output);     // Сет текста в переменную Caesar::text
     Caesar::SetUserTextOutput(); // Вывод результата на экран
 }
