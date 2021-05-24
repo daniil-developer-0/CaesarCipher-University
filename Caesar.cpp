@@ -155,10 +155,9 @@ QString Caesar::AlgoDecodeText(QString text)
     QString result = "";
     // Подсчёт коэффициентов символов
     float *localAlphabetFrequency = new float[Caesar::alphabetAmountOfLetters]; // Локальные частоты встречаемости символов
-    // std::map<QChar, float> CharacterFrequencies;
     for (int i = 0; i < Caesar::alphabetAmountOfLetters; i++)
     {
-        localAlphabetFrequency[i] = (float)text.count(Caesar::alphabet[i]) / text.length(); // Частота встречи определенного символа в исходном тексте
+        localAlphabetFrequency[i] = (float)text.count(Caesar::alphabet[i], cs = Qt::CaseInsensitive) / text.length(); // Частота встречи определенного символа в исходном тексте
         localAlphabetFrequency[i] = (float)((int)(localAlphabetFrequency[i] * 10000)) / 100; // Отрезаем мантиссу. Оставляем 10^2 (2 числа после запятой).
 
         #ifdef DEBUG
@@ -170,34 +169,7 @@ QString Caesar::AlgoDecodeText(QString text)
         #endif
         
     }
-    //: Нахождение разницы между символами
-    //* Обнуление всех элементов массива
-    float *sums = new float[Caesar::alphabetAmountOfLetters];
-    
-    for (int i = 0; i < Caesar::alphabetAmountOfLetters; i++)
-    {
-        sums[i] = 0;
-        for (int j = 0; j < Caesar::alphabetAmountOfLetters; j++)
-        {
-            sums[i] += (i + j >= Caesar::alphabetAmountOfLetters) ?
-            Caesar::alphabetFrequency[0 + j] - localAlphabetFrequency[0 + j] :
-            Caesar::alphabetFrequency[i + j] - localAlphabetFrequency[i + j];
-        }
-    }
 
-    //: Нахождение минимальной разницы
-    int min = sums[0];
-    int min_index = 0;
-    for (int i = 0; i < Caesar::alphabetAmountOfLetters; i++)
-    {
-        if (sums[i] < min) {
-            min = sums[i];
-            min_index = i;
-        }
-    }
-        
-    //: Дешифровка
-    result = Caesar::EncodeText(text, min_index - 1);
     return result;
 }
 
