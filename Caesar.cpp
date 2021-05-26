@@ -193,10 +193,14 @@ QString Caesar::AlgoDecodeText(QString text)
     }
 
     // Поиск разности индексов
-    if ()
+    int dxIndex = Caesar::alphabet.indexOf(localAlphabet[0]) - Caesar::alphabet.indexOf(Caesar::alphabetSortedByFrequency[0]);
+    if(dxIndex < 0) {
+        dxIndex = Caesar::alphabetAmountOfLetters - std::abs(dxIndex);
+    }
 
+    return EncodeText(text, Caesar::alphabetAmountOfLetters - dxIndex);
 
-    return localAlphabet;
+    //return localAlphabet + "\n" + QString::number(dxIndex);
 }
 
 // Slots
