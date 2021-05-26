@@ -119,7 +119,7 @@
          <string>Количество символов алфавита, на которое будет сдвинута каждая буква слова</string>
         </property>
         <property name="minimum">
-         <number>-99</number>
+         <number>0</number>
         </property>
         <property name="value">
          <number>1</number>

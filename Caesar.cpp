@@ -2,6 +2,7 @@
 #include "./ui_caesar.h"
 #include <map>
 #include <QString>
+#include <cmath>
 
 #define DEBUG
 
@@ -57,23 +58,25 @@ void Caesar::SetUpLanguageEnvironment()
     // Select language
     switch (lang_map[Caesar::language])
     {
-    case 0:
-        // English language
-        Caesar::alphabet = "abcdefghijklmnopqrstuvwxyz";
-        Caesar::alphabetAmountOfLetters = 26;
-        Caesar::alphabetFrequency = new float[alphabetAmountOfLetters]{8.12f, 1.49f, 2.71f, 4.32f, 12.0f, 2.30f, 2.03f, 5.92f, 7.31f, 3.98f, 0.10f, 0.69f, 2.61f, 6.95f, 7.68f, 1.82f, 6.02f, 0.11f, 6.28f, 9.10f, 2.88f, 1.11f, 2.09f, 0.17f, 2.11f, 0.07f};
-        break;
+        case 0:
+            // English language
+            Caesar::alphabet = "abcdefghijklmnopqrstuvwxyz";
+            Caesar::alphabetAmountOfLetters = 26;
+            Caesar::alphabetFrequency = new float[alphabetAmountOfLetters]{8.12f, 1.49f, 2.71f, 4.32f, 12.0f, 2.30f, 2.03f, 5.92f, 7.31f, 3.98f, 0.10f, 0.69f, 2.61f, 6.95f, 7.68f, 1.82f, 6.02f, 0.11f, 6.28f, 9.10f, 2.88f, 1.11f, 2.09f, 0.17f, 2.11f, 0.07f};
+            Caesar::alphabetSortedByFrequency = "etainroshdlcfumgpwbyvkqxjz";
+            break;
 
-    case 1:
-        // Russian language
-        Caesar::alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-        Caesar::alphabetAmountOfLetters = 33;
-        Caesar::alphabetFrequency = new float[alphabetAmountOfLetters]{7.5f, 1.7f, 4.6f, 1.6f, 3.0f, 8.8f, 8.8f, 0.8f, 1.9f, 7.5f, 1.2f, 3.4f, 4.2f, 3.2f, 6.4f, 10.9f, 2.8f, 4.8f, 5.4f, 6.4f, 2.6f, 0.2f, 1.1f, 0.5f, 1.5f, 0.7f, 0.4f, 1.9f, 1.7f, 1.7f, 0.4f, 0.7f, 2.2f};
-        break;
+        case 1:
+            // Russian language
+            Caesar::alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+            Caesar::alphabetAmountOfLetters = 33;
+            Caesar::alphabetFrequency = new float[alphabetAmountOfLetters]{7.5f, 1.7f, 4.6f, 1.6f, 3.0f, 8.8f, 8.8f, 0.8f, 1.9f, 7.5f, 1.2f, 3.4f, 4.2f, 3.2f, 6.4f, 10.9f, 2.8f, 4.8f, 5.4f, 6.4f, 2.6f, 0.2f, 1.1f, 0.5f, 1.5f, 0.7f, 0.4f, 1.9f, 1.7f, 1.7f, 0.4f, 0.7f, 2.2f};
+            Caesar::alphabetSortedByFrequency = "оеаинтсрвлкмдпуяызъьгчйхжюшцщэф";
+            break;
 
-    default:
-        throw std::runtime_error("There is no language what you need (support for Russian and English only)");
-        break;
+        default:
+            throw std::runtime_error("There is no language what you need (support for Russian and English only)");
+            break;
     }
 }
 
@@ -157,20 +160,43 @@ QString Caesar::AlgoDecodeText(QString text)
     float *localAlphabetFrequency = new float[Caesar::alphabetAmountOfLetters]; // Локальные частоты встречаемости символов
     for (int i = 0; i < Caesar::alphabetAmountOfLetters; i++)
     {
-        localAlphabetFrequency[i] = (float)text.count(Caesar::alphabet[i], cs = Qt::CaseInsensitive) / text.length(); // Частота встречи определенного символа в исходном тексте
+        localAlphabetFrequency[i] = (float)text.count(Caesar::alphabet[i], Qt::CaseInsensitive) / text.length(); // Частота встречи определенного символа в исходном тексте
         localAlphabetFrequency[i] = (float)((int)(localAlphabetFrequency[i] * 10000)) / 100; // Отрезаем мантиссу. Оставляем 10^2 (2 числа после запятой).
 
-        #ifdef DEBUG
+#ifdef DEBUG
         result.append("===\n");
         result.append("Letter is: " + QString(Caesar::alphabet.at(i)) + "\n");
         result.append("Letter count: " + QString::number(text.count(Caesar::alphabet.at(i))) + "\n");
         result.append("Letter Frequency divided on text len: " + QString::number(localAlphabetFrequency[i]) + "\n");
         result.append("===\n\n");
-        #endif
-        
+#endif
     }
 
-    return result;
+    // Копирование алфавита
+    QString localAlphabet = "";
+    localAlphabet.append(Caesar::alphabet);
+
+    // Сортировка
+    for (int i = 0; i < Caesar::alphabetAmountOfLetters; i++) {
+        for (int j = 1; j < Caesar::alphabetAmountOfLetters - i; j++) {
+            if (localAlphabetFrequency[j] > localAlphabetFrequency[j - 1]) {
+                // Меняем местами коэффициенты
+                float tempFrequency = localAlphabetFrequency[j];
+                localAlphabetFrequency[j] = localAlphabetFrequency[j - 1];
+                localAlphabetFrequency[j - 1] = tempFrequency;
+                // Меняем местами буквы
+                QChar tempChar = localAlphabet[j];
+                localAlphabet[j] = localAlphabet[j - 1];
+                localAlphabet[j - 1] = tempChar;
+            }
+        }
+    }
+
+    // Поиск разности индексов
+    if ()
+
+
+    return localAlphabet;
 }
 
 // Slots

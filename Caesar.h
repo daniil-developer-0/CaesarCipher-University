@@ -135,6 +135,12 @@ private:
     float* alphabetFrequency;
 
     /**
+     * @brief Массив с символами алфавита отсортированными по встречаемости
+     *
+     */
+    QString alphabetSortedByFrequency;
+
+    /**
      * @brief Символ, который охарактеризовывает используемый язык
      * 
      */
